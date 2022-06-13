@@ -6,6 +6,8 @@ import 'package:state_management_in_life/product/padding/page_padding.dart';
 
 import '../../product/widget/onboard_card.dart';
 
+part './module/start_fab_button.dart';
+
 class OnBoardView extends StatefulWidget {
   const OnBoardView({Key? key}) : super(key: key);
 
@@ -16,8 +18,6 @@ class OnBoardView extends StatefulWidget {
 class _OnBoardViewState extends State<OnBoardView> {
   final String _skipTile = 'Skip';
 
-  final String _start = 'Start';
-  final String _end = 'Next';
   int _selectedIndex = 0;
 
 //if its last page show start if not show next
@@ -53,10 +53,13 @@ class _OnBoardViewState extends State<OnBoardView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TabIndicator(
-                  selectedIndex: _selectedIndex,
-                ),
-                _nextButton()
+                TabIndicator(selectedIndex: _selectedIndex),
+                _StartFabButton(
+                  isLastPage: _isFirstPage,
+                  onPressed: () {
+                    _incrementAndChange();
+                  },
+                )
               ],
             )
           ],
@@ -95,15 +98,6 @@ class _OnBoardViewState extends State<OnBoardView> {
       itemBuilder: (context, index) {
         return OnBoardCard(model: OnBoardModels.onBoardItems[index]);
       },
-    );
-  }
-
-  FloatingActionButton _nextButton() {
-    return FloatingActionButton(
-      onPressed: () {
-        _incrementAndChange();
-      },
-      child: Text(_isLastPage ? _start : _end),
     );
   }
 }
