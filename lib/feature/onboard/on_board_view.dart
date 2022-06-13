@@ -20,22 +20,36 @@ class _OnBoardViewState extends State<OnBoardView> {
 
   int _selectedIndex = 0;
 
-//if its last page show start if not show next
   bool get _isLastPage =>
       OnBoardModels.onBoardItems.length - 1 == _selectedIndex;
-
   bool get _isFirstPage => _selectedIndex == 0;
+
+  // ---xx
+  ValueNotifier<bool> isBackEnable = ValueNotifier(false);
+  // --xx
 
   void _incrementAndChange([int? value]) {
     if (_isLastPage && value == null) {
+      _changeBackEnable(true);
       return;
     }
+
+    _changeBackEnable(false);
     _incrementSelectedPage(value);
+  }
+
+  void _changeBackEnable(bool value) {
+    if (value == isBackEnable.value) return;
+    isBackEnable.value = value;
   }
 
   void _incrementSelectedPage([int? value]) {
     setState(() {
-      _selectedIndex = value ?? _selectedIndex++;
+      if (value != null) {
+        _selectedIndex = value;
+      } else {
+        _selectedIndex++;
+      }
     });
   }
 
@@ -47,15 +61,13 @@ class _OnBoardViewState extends State<OnBoardView> {
         padding: const PagePadding.all(),
         child: Column(
           children: [
-            Expanded(
-              child: _pageViewItems(),
-            ),
+            Expanded(child: _pageViewItems()),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TabIndicator(selectedIndex: _selectedIndex),
                 _StartFabButton(
-                  isLastPage: _isFirstPage,
+                  isLastPage: _isLastPage,
                   onPressed: () {
                     _incrementAndChange();
                   },
@@ -75,9 +87,16 @@ class _OnBoardViewState extends State<OnBoardView> {
       //status bar color
       systemOverlayStyle: SystemUiOverlayStyle.dark,
       actions: [
-        TextButton(
-          onPressed: () {},
-          child: Text(_skipTile),
+        ValueListenableBuilder<bool>(
+          valueListenable: isBackEnable,
+          builder: (BuildContext context, bool value, Widget? child) {
+            return value
+                ? const SizedBox()
+                : TextButton(
+                    onPressed: () {},
+                    child: Text(_skipTile),
+                  );
+          },
         ),
       ],
       leading: _isFirstPage
