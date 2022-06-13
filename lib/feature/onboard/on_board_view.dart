@@ -15,23 +15,27 @@ class OnBoardView extends StatefulWidget {
 
 class _OnBoardViewState extends State<OnBoardView> {
   final String _skipTile = 'Skip';
+
+  final String _start = 'Start';
+  final String _end = 'Next';
   int _selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-  }
+//if its last page show start if not show next
+  bool get _isLastPage =>
+      OnBoardModels.onBoardItems.length - 1 == _selectedIndex;
 
-  void _incrementAndChange() {
-    if (_selectedIndex == OnBoardModels.onBoardItems.length - 1) {
+  bool get _isFirstPage => _selectedIndex == 0;
+
+  void _incrementAndChange([int? value]) {
+    if (_isLastPage && value == null) {
       return;
     }
-    _incrementSelectedPage();
+    _incrementSelectedPage(value);
   }
 
-  void _incrementSelectedPage() {
+  void _incrementSelectedPage([int? value]) {
     setState(() {
-      _selectedIndex++;
+      _selectedIndex = value ?? _selectedIndex++;
     });
   }
 
@@ -73,15 +77,20 @@ class _OnBoardViewState extends State<OnBoardView> {
           child: Text(_skipTile),
         ),
       ],
-      leading: IconButton(
-        onPressed: () {},
-        icon: const Icon(Icons.chevron_left_outlined, color: Colors.grey),
-      ),
+      leading: _isFirstPage
+          ? null
+          : IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.chevron_left_outlined, color: Colors.grey),
+            ),
     );
   }
 
-  PageView _pageViewItems() {
+  Widget _pageViewItems() {
     return PageView.builder(
+      onPageChanged: (value) {
+        _incrementAndChange(value);
+      },
       itemCount: OnBoardModels.onBoardItems.length,
       itemBuilder: (context, index) {
         return OnBoardCard(model: OnBoardModels.onBoardItems[index]);
@@ -94,7 +103,7 @@ class _OnBoardViewState extends State<OnBoardView> {
       onPressed: () {
         _incrementAndChange();
       },
-      child: Text('Next'),
+      child: Text(_isLastPage ? _start : _end),
     );
   }
 }
